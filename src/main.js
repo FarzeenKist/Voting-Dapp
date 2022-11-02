@@ -5,7 +5,7 @@ import votingAbi from "../contract/voting.abi.json";
 import erc20Abi from "../contract/erc20.abi.json";
 
 const ERC20_DECIMALS = 18;
-const votingAddress = "0x9c3b5D772eF1D722fd5100E700019Baa85cb0dab";
+const votingAddress = "0x77B4841F55a382b8d14F53bCFe0eF1fe9420BAb3";
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 
 let kit;
@@ -55,16 +55,21 @@ const Idlength = async function () {
   for (let i = 1; i < _productsLength; i++) {
     let _product = new Promise(async (resolve, reject) => {
       let result = await contract.methods.getVoteDetails(i).call();
-      console.log("trfdhghgj", result);
+      console.log(result)
+      var myDate = new Date(result[4] * 1000);
+      var localdate = myDate.toLocaleString();
+      console.log(myDate)
       resolve({
         index: i,
         owner: result[0],
         name: result[1],
-        noOfVote: result[2],
-        duration: result[3],
-        image: result[4],
-        // price: new BigNumber(result[5]),
-        // sold: result[6],
+        details: result[2],
+        noOfVote: result[3],
+        duration: localdate,
+        image: result[5],
+        No: result[6],
+        Undecided: result[7],
+        Yes: result[8]
       });
     });
     _products.push(_product);
@@ -98,16 +103,16 @@ function productTemplate(_product) {
         </div>
         <h2 class="card-title fs-4 fw-bold mt-2">${_product.name}</h2>
         <p class="card-text mb-4" style="min-height: 82px">
-          ${_product.name}             
+          ${_product.details}             
         </p>
         <p class="card-text mt-4">
           <i class="bi bi-geo-alt-fill"></i>
           <span>Vote Ends in ${_product.duration}</span>
         </p>
         <div class="flex gap-2">
-        <a class="btn btn-lg btn-outline-dark badBtn fs-6 p-3" id=${_product.index} value=${0}>Bad</a>
-        <a class="btn btn-lg btn-outline-dark averageBtn fs-6 p-3" id=${_product.index} value=${1}>Average</a>
-        <a class="btn btn-lg btn-outline-dark goodBtn fs-6 p-3" id=${_product.index} value=${2}>Good</a>
+        <a class="btn btn-lg btn-outline-dark badBtn fs-6 p-3" id=${_product.index} value=${0}>No ${_product.No}</a>
+        <a class="btn btn-lg btn-outline-dark averageBtn fs-6 p-3" id=${_product.index} value=${1}>Undecided ${_product.Undecided}</a>
+        <a class="btn btn-lg btn-outline-dark goodBtn fs-6 p-3" id=${_product.index} value=${2}>Yes ${_product.Yes}</a>
       </div>
 
         <div class="d-grid gap-2">
@@ -189,29 +194,58 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     notification("⌛ Fetching Vote Result...");
     try {
       const result = await contract.methods
-      .totalVote(index)
+      .getVoteDetails(index)
       .send({ from: kit.defaultAccount })
     } catch (error) {
-      notification(`⚠️ already Voted...`);
+      notification(`⚠️ Error fetching VoteResult...`);
       return;
     }
-    notification(`🎉 You've Voted successfully.`)
+    notification(`🎉 Vote result fetch successfully successfully.`)
     await Idlength()
   }
 });
+
+// document.querySelector("#marketplace").addEventListener("click", async (e) => {
+//   const _products = [];
+//   if (e.target.className.includes("voteResultBtn")) {
+//     const index = e.target.id;
+//     let _product = new Promise(async (resolve, reject) => {
+//       console.log(index)
+//       let result = await contract.methods.getVoteDetails(index).call();
+//       console.log("my res",result)
+//       var myDate = new Date(result[3] * 1000);
+//       var localdate = myDate.toLocaleString();
+//       console.log(myDate)
+//       resolve({
+//         owner: result[0],
+//         name: result[1],
+//         noOfVote: result[2],
+//         duration: localdate,
+//         image: result[4],
+//         bad: result[5],
+//         average: result[6],
+//         good: result[7]
+//       });
+//     });
+//     _products.push(_product);
+//   }
+//   products = await Promise.all(_products);
+//   console.log("products", products);
+//   renderProducts();
+// });
 
 /***********************Bad BTN**************** */
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
   if (e.target.className.includes("badBtn")) {
     const index = e.target.id;
     const value = e.target.value;
-    notification(`⌛ ${kit.defaultAccount} voting for Bad...`)
+    notification(`⌛ ${kit.defaultAccount} voting for No...`)
     try {
       const result = await contract.methods
       .Vote(index, 0)
       .send({ from: kit.defaultAccount })
     } catch (error) {
-      notification(`⚠️ already Voted...`);
+      notification(`⚠️ ${error} Error in Voting...`);
       return;
     }
     notification(`🎉 You've Voted successfully.`)
@@ -224,13 +258,13 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
   if (e.target.className.includes("averageBtn")) {
     const index = e.target.id;
     const value = e.target.value;
-    notification(`⌛ ${kit.defaultAccount} voting for Average...`)
+    notification(`⌛ ${kit.defaultAccount} voting for Undecided...`)
     try {
       const result = await contract.methods
       .Vote(index, 1)
       .send({ from: kit.defaultAccount })
     } catch (error) {
-      notification(`⚠️ already Voted...`);
+      notification(`⚠️ ${error} Error in Voting...`);
       return;
     }
     notification(`🎉 You've Voted successfully.`)
@@ -245,16 +279,23 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     const index = e.target.id;
     const value = e.target.value;
     console.log(value)
-    notification(`⌛ ${kit.defaultAccount} voting for Good...`)
+    notification(`⌛ ${kit.defaultAccount} voting for Yes...`)
     try {
       const result = await contract.methods
       .Vote(index, 2)
       .send({ from: kit.defaultAccount })
     } catch (error) {
-      notification(`⚠️ already Voted...`);
+      notification(`⚠️ ${error} Error in Voting...`);
       return;
     }
     notification(`🎉 You've Voted successfully.`)
     await Idlength()
   }
 });
+
+//https://source.unsplash.com/uK_duTfkNJE/640x960
+//https://source.unsplash.com/mkTqZN1NzhY/640x960
+//https://source.unsplash.com/L4YGuSg0fxs/640x960
+//0x9c3b5D772eF1D722fd5100E700019Baa85cb0dab initial deploy
+// 2- 0x1e945668eF184502Bda9b1AF23fB5AF6304c291f
+//new 0xdF804684BEDBd5C4bEc5f80c90Db381DA3dB9772

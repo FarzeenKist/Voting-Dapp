@@ -51,6 +51,11 @@
 				"internalType": "string",
 				"name": "bannerLink",
 				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_details",
+				"type": "string"
 			}
 		],
 		"name": "createVote",
@@ -90,6 +95,11 @@
 				"type": "string"
 			},
 			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
@@ -103,6 +113,21 @@
 				"internalType": "string",
 				"name": "",
 				"type": "string"
+			},
+			{
+				"internalType": "uint32",
+				"name": "",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint32",
+				"name": "",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint32",
+				"name": "",
+				"type": "uint32"
 			}
 		],
 		"stateMutability": "view",
@@ -118,35 +143,6 @@
 		],
 		"name": "timeLeft",
 		"outputs": [
-			{
-				"internalType": "uint32",
-				"name": "",
-				"type": "uint32"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint32",
-				"name": "_id",
-				"type": "uint32"
-			}
-		],
-		"name": "totalVote",
-		"outputs": [
-			{
-				"internalType": "uint32",
-				"name": "",
-				"type": "uint32"
-			},
-			{
-				"internalType": "uint32",
-				"name": "",
-				"type": "uint32"
-			},
 			{
 				"internalType": "uint32",
 				"name": "",

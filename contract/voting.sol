@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 
 contract voting{
     //@author: BlackAdam
-    //This code allows a single poll to be created with 3 options (bad, average, good)
+    //This code allows a single poll to be created with 3 options (No, Undecided, Yes)
     //@dev: the options can be inreased and cutomize
 
     //declare an unassigned address here as owner
@@ -28,6 +28,7 @@ contract voting{
 
     struct voteDetails{
         string Topic;
+        string Details;
         string bannerURL;
         uint120 _noOfVOte;
         rating rate;
@@ -37,18 +38,18 @@ contract voting{
         address voteOwnerAddress; //20bytes
     //The options are declared, the vote/poll is restricted to this three options
     /// @dev: any new options should be added here, in the enums, in the vote functions and totalvote function
-        uint32 bad; // 4 byte
-        uint32 average;
-        uint32 good; 
+        uint32 No; // 4 byte
+        uint32 Undecided;
+        uint32 Yes; 
     }
 
     //these are the option that the voters/user can select from
-    //bad: 0, average: 1, good: 2
+    //No: 0, Undecided: 1, Yes: 2
     /// @dev: any new options can be added here and these can also be customized
     enum rating{
-        bad,
-        average,
-        good   
+        No,
+        Undecided,
+        Yes   
     }
 
     //this map a uint to a voteDetails
@@ -71,10 +72,11 @@ contract voting{
     }
 
     //the vote/poll is created here
-    function createVote(string memory _topic, uint duration, string memory bannerLink) external returns(uint, string memory){
+    function createVote(string memory _topic, uint duration, string memory bannerLink, string memory _details) external returns(uint, string memory){
         voteDetails storage VD =  _votedetails[ID];
         VD.voteOwnerAddress = msg.sender;
         VD.Topic = _topic;
+        VD.Details = _details;
         VD.bannerURL = bannerLink;
         VD.voteCreated = true;
         VD.votingPeriod = uint32(block.timestamp + (duration * (1 days)));
@@ -96,23 +98,23 @@ contract voting{
     //i am checking the rate the user entered and increasing it by 1
     /// @dev: if the options/choices has been increase
     //you need to add an if statement to check for the new options added also
-        if (rating.good == _rate) VD.good +=1 ;
-        if (rating.average == _rate) VD.average +=1;
-        if (rating.bad == _rate) VD.bad +=1;       
+        if (rating.Yes == _rate) VD.Yes +=1 ;
+        if (rating.Undecided == _rate) VD.Undecided +=1;
+        if (rating.No == _rate) VD.No +=1;       
     }
     
-    //this function gives the results 0f the vote/poll
-    function totalVote(uint32 _id) external view returns(uint32, uint32, uint32){
-       voteDetails storage VD =  _votedetails[_id];
-    /// @dev:you need to add the choice/option that you included to be able to see the result
-        return(VD.bad, VD.average, VD.good);
-    }
+    // //this function gives the results 0f the vote/poll
+    // function totalVote(uint32 _id) external view returns(uint32, uint32, uint32){
+    //    voteDetails storage VD =  _votedetails[_id];
+    // /// @dev:you need to add the choice/option that you included to be able to see the result
+    //     return(VD.No, VD.Undecided, VD.Yes);
+    // }
 
     //this gives the details of the votes
-    function getVoteDetails(uint _id) external view returns(address, string memory, uint, uint32, string memory){
+    function getVoteDetails(uint _id) external view returns(address, string memory, string memory, uint, uint32, string memory, uint32, uint32, uint32){
         voteDetails storage VD =  _votedetails[_id];
         require(VD.voteCreated == true, "invalid vote id");
-        return(VD.voteOwnerAddress, VD.Topic, VD._noOfVOte, VD.votingPeriod, VD.bannerURL);
+        return(VD.voteOwnerAddress, VD.Topic, VD.Details, VD._noOfVOte, VD.votingPeriod, VD.bannerURL, VD.No, VD.Undecided, VD.Yes);
     }
 
     //this function returns the timeleft for a particular poll
@@ -121,5 +123,6 @@ contract voting{
         return uint32(VD.votingPeriod - block.timestamp);
 
     }
+
 
 }
