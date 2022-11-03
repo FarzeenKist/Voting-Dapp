@@ -1,12 +1,10 @@
 import Web3 from "web3";
 import { newKitFromWeb3 } from "@celo/contractkit";
-import BigNumber from "bignumber.js";
 import votingAbi from "../contract/voting.abi.json";
-import erc20Abi from "../contract/erc20.abi.json";
 
 const ERC20_DECIMALS = 18;
 const votingAddress = "0x77B4841F55a382b8d14F53bCFe0eF1fe9420BAb3";
-const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
+
 
 let kit;
 let contract;
@@ -57,7 +55,13 @@ const Idlength = async function () {
       let result = await contract.methods.getVoteDetails(i).call();
       console.log(result)
       var myDate = new Date(result[4] * 1000);
-      var localdate = myDate.toLocaleString();
+      var localdate;
+      if(Math.floor(Date.now() / 1000) >= result[4]){
+        localdate = "Poll Voting Ended"
+      } else{
+        localdate = myDate.toLocaleString();
+      }
+      
       console.log(myDate)
       resolve({
         index: i,
@@ -106,13 +110,19 @@ function productTemplate(_product) {
           ${_product.details}             
         </p>
         <p class="card-text mt-4">
-          <i class="bi bi-geo-alt-fill"></i>
-          <span>Vote Ends in ${_product.duration}</span>
+          <i class="bi bi-clock-fill"></i>
+          <span>Vote Ends in: ${_product.duration}</span>
         </p>
-        <div class="flex gap-2">
-        <a class="btn btn-lg btn-outline-dark badBtn fs-6 p-3" id=${_product.index} value=${0}>No ${_product.No}</a>
-        <a class="btn btn-lg btn-outline-dark averageBtn fs-6 p-3" id=${_product.index} value=${1}>Undecided ${_product.Undecided}</a>
-        <a class="btn btn-lg btn-outline-dark goodBtn fs-6 p-3" id=${_product.index} value=${2}>Yes ${_product.Yes}</a>
+
+        <div class="d-flex justify-content-around gap-2 mb-2">
+        <a class="btn btn-lg btn-outline-dark badBtn fs-6 p-3" id=${_product.index} >
+        No <span class="text-primary display-6 font-weight-bold"> <i class="bi bi-arrow-up"></i> ${_product.No} </span> </a>
+
+        <a class="btn btn-lg btn-outline-dark averageBtn fs-6 p-3" id=${_product.index}>
+        Undecided <span class="text-primary display-6 font-weight-bold"> <i class="bi bi-arrow-up"></i> ${_product.Undecided} </span></a>
+
+        <a class="btn btn-lg btn-outline-dark goodBtn fs-6 p-3" id=${_product.index}>
+        Yes <span class="text-primary display-6 font-weight-bold"> <i class="bi bi-arrow-up"></i> ${_product.Yes} </span> </a>
       </div>
 
         <div class="d-grid gap-2">
@@ -164,29 +174,6 @@ window.addEventListener("load", async () => {
   notificationOff();
 });
 
-document
-  .querySelector("#newProductBtn")
-  .addEventListener("click", async (e) => {
-    const params = [
-      document.getElementById("newProductName").value,
-      document.getElementById("newImgUrl").value,
-      document.getElementById("newProductDescription").value,
-      document.getElementById("newLocation").value,
-      new BigNumber(document.getElementById("newPrice").value)
-        .shiftedBy(ERC20_DECIMALS)
-        .toString(),
-    ];
-    notification(`⌛ Adding "${params[0]}"...`);
-    try {
-      const result = await contract.methods
-        .writeProduct(...params)
-        .send({ from: kit.defaultAccount });
-    } catch (error) {
-      notification(`⚠️ ${error}.`);
-    }
-    notification(`🎉 You successfully added "${params[0]}".`);
-    getProducts();
-  });
 
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
   if (e.target.className.includes("voteResultBtn")) {
@@ -292,6 +279,62 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     await Idlength()
   }
 });
+
+/******************Create New Poll********************* */
+    document
+    .querySelector("#create-NewPoll-Btn")
+    .addEventListener("click", async (e) => {
+      notification(`⌛ ${kit.defaultAccount} Creating New Poll...`)
+      const topic = document.getElementById("newPollTopic").value
+      const duration = document.getElementById("newPollDuration").value
+      const pollUrl = document.getElementById("newPollBannerUrl").value
+      const pollDetails = document.getElementById("newPollDetails").value
+      //const input = document.getElementById("NewNumber").value
+      console.log(topic, duration, pollUrl, pollDetails)
+      try {
+        const result = await contract.methods
+        .createVote(topic, duration, pollUrl, pollDetails)
+        .send({ from: kit.defaultAccount })
+        console.log(result)
+      } catch (error) {
+        notification(`⚠️ oops, an error occured`)
+        return;
+      }
+      notification(`🎉 ${topic} Poll created successfully.`)
+      await Idlength();
+    }) 
+
+    /**********************Get Time Left****************** */
+    //   document.querySelector("#marketplace").addEventListener("click", async (e) => 
+    document.querySelector("#marketplace").addEventListener("click", async (e) => {
+      if (e.target.className.includes("countdownBtn")) {
+        const index = e.target.id;
+        console.log("index", index)
+        notification(`⌛ ${kit.defaultAccount} fetching time...`)
+        try {
+
+          const result = await contract.methods
+          .timeLeft(index)
+          .send({ from: kit.defaultAccount })
+          console.log("time", result)
+          // if(result == 0){
+          //   document.getElementById("countdown").innerHTML = "Poll Ended"
+
+          // }else{
+          //   console.log(await result)
+            // const [days, hours, minutes, seconds] = (Number(result) * 1000);
+            // console.log(days, hours, minutes, seconds)
+            // document.getElementById("countdown").innerHTML = `Countdown ${days} ${hours} ${minutes} ${seconds}`
+    
+          //}
+          //return result;
+        } catch (error) {
+          notification(`⚠️ ${error} oops an error occured...`);
+          return;
+        }
+        notification(`🎉 Time fetched succesully successfully.`)        
+      }
+    });
 
 //https://source.unsplash.com/uK_duTfkNJE/640x960
 //https://source.unsplash.com/mkTqZN1NzhY/640x960
