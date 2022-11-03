@@ -57,7 +57,7 @@ const Idlength = async function () {
       var myDate = new Date(result[4] * 1000);
       var localdate;
       if(Math.floor(Date.now() / 1000) >= result[4]){
-        localdate = "Poll Voting Ended"
+        localdate = '<span class="text-danger"> Ended <span>'
       } else{
         localdate = myDate.toLocaleString();
       }
@@ -111,18 +111,18 @@ function productTemplate(_product) {
         </p>
         <p class="card-text mt-4">
           <i class="bi bi-clock-fill"></i>
-          <span>Vote Ends in: ${_product.duration}</span>
+          <span>Vote Ends in: <span class="text-info"> ${_product.duration}</span></span>
         </p>
 
         <div class="d-flex justify-content-around gap-2 mb-2">
         <a class="btn btn-lg btn-outline-dark badBtn fs-6 p-3" id=${_product.index} >
-        No <span class="text-primary display-6 font-weight-bold"> <i class="bi bi-arrow-up"></i> ${_product.No} </span> </a>
+        No <br> <span class="text-primary display-6">  ${_product.No} </span> </a>
 
         <a class="btn btn-lg btn-outline-dark averageBtn fs-6 p-3" id=${_product.index}>
-        Undecided <span class="text-primary display-6 font-weight-bold"> <i class="bi bi-arrow-up"></i> ${_product.Undecided} </span></a>
+        Undecided <br> <span class="text-primary display-6">  ${_product.Undecided} </span></a>
 
         <a class="btn btn-lg btn-outline-dark goodBtn fs-6 p-3" id=${_product.index}>
-        Yes <span class="text-primary display-6 font-weight-bold"> <i class="bi bi-arrow-up"></i> ${_product.Yes} </span> </a>
+        Yes <br> <span class="text-primary display-6">  ${_product.Yes} </span> </a>
       </div>
 
         <div class="d-grid gap-2">
