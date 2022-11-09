@@ -1,3 +1,26 @@
+# Celo Voting Dapp
+
+## Description
+This is a Voting dapp where users
+* Can create a poll
+* Set the duration for the poll
+* Vote in a Poll
+* View poll result
+
+Users can only vote once in each poll.
+
+## Live Demo
+[Voting Dapp link](https://ultra-tech-code.github.io/Voting-Dapp/)
+
+## Requiremnet
+
+* Install the CeloExtensionWallet from the Google Chrome Store.
+* Create a wallet.
+* Go to https://celo.org/developers/faucet and get tokens for the alfajores testnet.
+* Switch to the alfajores testnet in the CeloExtensionWallet.
+
+## Project Setup
+
 # Install
 
 ```
