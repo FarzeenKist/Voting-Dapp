@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import { newKitFromWeb3 } from "@celo/contractkit";
-import votingAbi from "../contract/voting.abi.json";
+import votingABI from "../contract/voting.abi.json";
 
 const ERC20_DECIMALS = 18;
 const votingAddress = "0x77B4841F55a382b8d14F53bCFe0eF1fe9420BAb3";
@@ -23,7 +23,7 @@ const connectCeloWallet = async function () {
       const accounts = await kit.web3.eth.getAccounts();
       kit.defaultAccount = accounts[0];
 
-      contract = new kit.web3.eth.Contract(votingAbi, votingAddress);
+      contract = new kit.web3.eth.Contract(votingABI, votingAddress);
     } catch (error) {
       notification(`⚠️ ${error}.`);
     }
@@ -32,14 +32,6 @@ const connectCeloWallet = async function () {
   }
 };
 
-// async function approve(_price) {
-//   const cUSDContract = new kit.web3.eth.Contract(erc20Abi, cUSDContractAddress)
-
-//   const result = await cUSDContract.methods
-//     .approve(votingAddress, _price)
-//     .send({ from: kit.defaultAccount })
-//   return result
-// }
 
 const getBalance = async function () {
   const totalBalance = await kit.getTotalBalance(kit.defaultAccount);
@@ -115,13 +107,13 @@ function productTemplate(_product) {
         </p>
 
         <div class="d-flex justify-content-around gap-2 mb-2">
-        <a class="btn btn-lg btn-outline-dark badBtn fs-6 p-3" id=${_product.index} >
+        <a class="btn btn-lg btn-outline-dark NoBtn fs-6 p-3" id=${_product.index} >
         No <br> <span class="text-primary display-6">  ${_product.No} </span> </a>
 
-        <a class="btn btn-lg btn-outline-dark averageBtn fs-6 p-3" id=${_product.index}>
+        <a class="btn btn-lg btn-outline-dark UndecidedBtn fs-6 p-3" id=${_product.index}>
         Undecided <br> <span class="text-primary display-6">  ${_product.Undecided} </span></a>
 
-        <a class="btn btn-lg btn-outline-dark goodBtn fs-6 p-3" id=${_product.index}>
+        <a class="btn btn-lg btn-outline-dark YesBtn fs-6 p-3" id=${_product.index}>
         Yes <br> <span class="text-primary display-6">  ${_product.Yes} </span> </a>
       </div>
 
@@ -169,12 +161,11 @@ window.addEventListener("load", async () => {
   notification("⌛ Loading...");
   await connectCeloWallet();
   await getBalance();
-  // await getProducts()
   await Idlength();
   notificationOff();
 });
 
-
+/********************Get Vote Result************************** */
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
   if (e.target.className.includes("voteResultBtn")) {
     const index = e.target.id;
@@ -221,9 +212,9 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
 //   renderProducts();
 // });
 
-/***********************Bad BTN**************** */
+/***********************NO BTN**************** */
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
-  if (e.target.className.includes("badBtn")) {
+  if (e.target.className.includes("NoBtn")) {
     const index = e.target.id;
     const value = e.target.value;
     notification(`⌛ ${kit.defaultAccount} voting for No...`)
@@ -232,7 +223,7 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
       .Vote(index, 0)
       .send({ from: kit.defaultAccount })
     } catch (error) {
-      notification(`⚠️ ${error} Error in Voting...`);
+      notification(`⚠️ ${error} Already Voted...`);
       return;
     }
     notification(`🎉 You've Voted successfully.`)
@@ -240,9 +231,9 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
   }
 });
 
-/*************************Average BTN****************** */
+/*************************Undecided BTN****************** */
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
-  if (e.target.className.includes("averageBtn")) {
+  if (e.target.className.includes("UndecidedBtn")) {
     const index = e.target.id;
     const value = e.target.value;
     notification(`⌛ ${kit.defaultAccount} voting for Undecided...`)
@@ -251,7 +242,7 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
       .Vote(index, 1)
       .send({ from: kit.defaultAccount })
     } catch (error) {
-      notification(`⚠️ ${error} Error in Voting...`);
+      notification(`⚠️ ${error} Already Voted...`);
       return;
     }
     notification(`🎉 You've Voted successfully.`)
@@ -262,7 +253,7 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
 
 /********************Good btn*********************** */
 document.querySelector("#marketplace").addEventListener("click", async (e) => {
-  if (e.target.className.includes("goodBtn")) {
+  if (e.target.className.includes("YesBtn")) {
     const index = e.target.id;
     const value = e.target.value;
     console.log(value)
@@ -272,7 +263,7 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
       .Vote(index, 2)
       .send({ from: kit.defaultAccount })
     } catch (error) {
-      notification(`⚠️ ${error} Error in Voting...`);
+      notification(`⚠️ ${error} Already Voted...`);
       return;
     }
     notification(`🎉 You've Voted successfully.`)
@@ -289,8 +280,6 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
       const duration = document.getElementById("newPollDuration").value
       const pollUrl = document.getElementById("newPollBannerUrl").value
       const pollDetails = document.getElementById("newPollDetails").value
-      //const input = document.getElementById("NewNumber").value
-      console.log(topic, duration, pollUrl, pollDetails)
       try {
         const result = await contract.methods
         .createVote(topic, duration, pollUrl, pollDetails)
@@ -305,7 +294,6 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
     }) 
 
     /**********************Get Time Left****************** */
-    //   document.querySelector("#marketplace").addEventListener("click", async (e) => 
     document.querySelector("#marketplace").addEventListener("click", async (e) => {
       if (e.target.className.includes("countdownBtn")) {
         const index = e.target.id;
@@ -335,10 +323,3 @@ document.querySelector("#marketplace").addEventListener("click", async (e) => {
         notification(`🎉 Time fetched succesully successfully.`)        
       }
     });
-
-//https://source.unsplash.com/uK_duTfkNJE/640x960
-//https://source.unsplash.com/mkTqZN1NzhY/640x960
-//https://source.unsplash.com/L4YGuSg0fxs/640x960
-//0x9c3b5D772eF1D722fd5100E700019Baa85cb0dab initial deploy
-// 2- 0x1e945668eF184502Bda9b1AF23fB5AF6304c291f
-//new 0xdF804684BEDBd5C4bEc5f80c90Db381DA3dB9772

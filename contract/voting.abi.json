@@ -1,11 +1,6 @@
 [
 	{
 		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
 		"name": "ID",
 		"outputs": [
 			{
@@ -25,9 +20,9 @@
 				"type": "uint32"
 			},
 			{
-				"internalType": "enum voting.rating",
+				"internalType": "uint256",
 				"name": "_rate",
-				"type": "uint8"
+				"type": "uint256"
 			}
 		],
 		"name": "Vote",
